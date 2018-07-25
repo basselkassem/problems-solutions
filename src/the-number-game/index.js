@@ -4,7 +4,17 @@
 // https://codeforces.com/problemset/problem/980/E
 
 const disjointSet = require('disjoint-set');
+const combinator = require('js-combinatorics');
 
+const generateCombination = (array, length) => {
+  const resArray = [];
+  let comb;
+  const generator = combinator.combination(array, length);
+  while (comb = generator.next()) {
+    resArray.push(comb);
+  }
+  return resArray;
+};
 const getGraphVertices = graph => graph.extract()
   .reduce((acc, vertex) => acc.concat(vertex));
 
@@ -31,10 +41,6 @@ const getTotalFans = (graph) => {
 
 const buildGraph = (edges) => {
   const graph = disjointSet();
-
-  // for (let index = 1; index <= districtNum; index++) {
-  //   graph.add(new Object(index));
-  // }
   edges.forEach((edge) => {
     graph.add(edge.a); graph.add(edge.b);
     graph.add(edge.a); graph.add(edge.b);
@@ -42,41 +48,35 @@ const buildGraph = (edges) => {
   });
   return graph;
 };
+const pathEdgeMapper = paths2d => paths2d
+  .map(paths => paths.map(path => ({ a: new Object(path.a), b: new Object(path.b) })));
 
 const getRemovedContestants = (districtNum, contestantNumToRemove, paths) => {
   const vertexNum = districtNum - contestantNumToRemove;
   const edgesNum = vertexNum - 1;
-  const edges = [];
-  paths.forEach((path) => {
-    const edge = { a: new Object(path.a), b: new Object(path.b) };
-    edges.push(edge);
-  });
-  let combinatorEdges;
-  const combinatorEdgesT = permute(edges, 0, edgesNum);
-  console.log(perEdges);
-  const resu = [];
-  for (const combinatorEdges in perEdges) {
-    const graph = buildGraph(combinatorEdges);
-    if (graph.extract().length) {
-      if (isConnected(graph)) {
-        console.log(combinatorEdges);
-
-        resu.push({ fans: getTotalFans(graph), graph: getGraphVertices(graph) });
-      }
+  const possiblePaths = generateCombination(paths, edgesNum);
+  const possibleEdges = pathEdgeMapper(possiblePaths);
+  const possibleGraphs = [];
+  possibleEdges.forEach((edges) => {
+    const graph = buildGraph(edges);
+    if (isConnected(graph, edges)) {
+      console.log('====>>', edges);
+      possibleGraphs.push({ fans: getTotalFans(graph), graph: getGraphVertices(graph) });
+    } else {
+      console.log('-->>', edges);
     }
-    // build graph
-    // isConnected()
-    // getTotalFans()
-    // find the maximum
-  }
-  console.log(resu);
+    graph.destroy();
+  });
+  console.log(possibleGraphs);
   return 1;
 };
 
 module.exports = {
+  generateCombination,
   getGraphVertices,
   isConnected,
   getTotalFans,
   buildGraph,
+  pathEdgeMapper,
   getRemovedContestants,
 };
