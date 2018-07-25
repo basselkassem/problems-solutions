@@ -1,0 +1,27 @@
+{
+  "name": "problems-solutions",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon ./src/index.js",
+    "test": "mocha --recursive \"./src/*.spec.js\"",
+    "test:watch": "mocha --recursive --watch \"./src/**/*.spec.js\""
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-plugin-import": "^2.13.0",
+    "mocha": "^5.2.0",
+    "nodemon": "^1.18.3",
+    "sinon": "^6.1.3"
+  },
+  "dependencies": {
+    "disjoint-set": "^1.1.8",
+    "js-combinatorics": "^0.5.3",
+    "union-find": "^1.0.2"
+  }
+}
