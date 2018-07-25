@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "name": "problems-solutions",
+=======
+  "name": "problems-solving",
+>>>>>>> a83a30864dfeefeb936f4a0a00e63d88d6d08487
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
