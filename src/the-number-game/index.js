@@ -5,28 +5,6 @@
 
 const disjointSet = require('disjoint-set');
 
-<<<<<<< HEAD
-=======
-const perEdges = [];
-function swap(alphabets, index1, index2) {
-  let temp = alphabets[index1];
-  alphabets[index1] = alphabets[index2];
-  alphabets[index2] = temp;
-  return alphabets;
-}
-
-function permute(alphabets, startIndex, endIndex) {
-  if (startIndex === endIndex) {
-	  perEdges.push(alphabets.concat());
-  }
-  for (let i = startIndex; i <= endIndex; i++) {
-    swap(alphabets, startIndex, i);
-    permute(alphabets, startIndex + 1, endIndex);
-    swap(alphabets, i, startIndex); // backtrack
-  }
-}
-
->>>>>>> a83a30864dfeefeb936f4a0a00e63d88d6d08487
 const getGraphVertices = graph => graph.extract()
   .reduce((acc, vertex) => acc.concat(vertex));
 
