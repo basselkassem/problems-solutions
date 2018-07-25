@@ -23,6 +23,7 @@ const isConnected = (graph) => {
   for (let district = 0; district < districts.length; district++) {
     for (let neaborDistrict = district + 1; neaborDistrict < districts.length; neaborDistrict++) {
       if (!graph.connected(districts[district], districts[neaborDistrict])) {
+        console.log(districts[district], districts[neaborDistrict]);
         return false;
       }
     }
@@ -42,14 +43,17 @@ const getTotalFans = (graph) => {
 const buildGraph = (edges) => {
   const graph = disjointSet();
   edges.forEach((edge) => {
-    graph.add(edge.a); graph.add(edge.b);
-    graph.add(edge.a); graph.add(edge.b);
-    graph.union(edge.a, edge.b);
+    const vertexA = { val: edge.a };
+    const vertexB = { val: edge.b };
+    graph.add(vertexA);
+    graph.add(vertexB);
+    graph.union(vertexA, vertexB);
+    graph.union(vertexB, vertexA);
   });
   return graph;
 };
 const pathEdgeMapper = paths2d => paths2d
-  .map(paths => paths.map(path => ({ a: new Object(path.a), b: new Object(path.b) })));
+  .map(paths => paths);
 
 const getRemovedContestants = (districtNum, contestantNumToRemove, paths) => {
   const vertexNum = districtNum - contestantNumToRemove;
@@ -59,8 +63,7 @@ const getRemovedContestants = (districtNum, contestantNumToRemove, paths) => {
   const possibleGraphs = [];
   possibleEdges.forEach((edges) => {
     const graph = buildGraph(edges);
-    if (isConnected(graph, edges)) {
-      console.log('====>>', edges);
+    if (isConnected(graph)) {
       possibleGraphs.push({ fans: getTotalFans(graph), graph: getGraphVertices(graph) });
     } else {
       console.log('-->>', edges);

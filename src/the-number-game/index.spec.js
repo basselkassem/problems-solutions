@@ -6,28 +6,42 @@ const {
 } = require('./index');
 
 describe('Solution', () => {
-  let paths; let districtNum; let contestantNumToRemove;
-  afterEach(() => {
-    paths = [];
-    districtNum = 0;
-    contestantNumToRemove = 0;
-  });
-  describe('isConnected', () => {
-    it('should return true when paths = [2 5, 5 6]', () => {
-      const vertex2 = new Object(2);
-      const vertex6 = new Object(6);
-      const vertex5 = new Object(5);
-      paths = [{ a: vertex2, b: vertex6 }, { a: vertex5, b: vertex6 }];
+  describe.only('isConnected', () => {
+    // it('assert equality', () => {
+    //   const vertex2 = 2;
+    //   const vertex6 = 6;
+    //   const vertex5 = 5;
+    //   const paths = [{ a: vertex2, b: vertex6 }, { a: vertex5, b: vertex6 }];
+    //   const graph = buildGraph(paths);
+    //   const dpaths = [{ a: 2, b: 6 }, { a: 5, b: 6 }];
+    //   const possiblePaths = generateCombination(dpaths, 0);
+    //   const possibleEdges = pathEdgeMapper(possiblePaths);
+    //   const dgraph = buildGraph(possibleEdges[0]);
+    //   expect(graph).to.equal(dgraph);
+    // });
+    it('should return true when paths = [2 6, 5 6]', () => {
+      const vertex2 = 2;
+      const vertex6 = 6;
+      const vertex5 = 5;
+      const paths = [{ a: vertex2, b: vertex6 }, { a: vertex5, b: vertex6 }];
       const graph = buildGraph(paths);
       const expectIsConnected = isConnected(graph);
       expect(expectIsConnected).to.equal(true);
     });
+    it('case2: should return true when paths = [2 6, 5 6]', () => {
+      const paths = [{ a: 2, b: 6 }, { a: 5, b: 6 }];
+      const possiblePaths = generateCombination(paths, 0);
+      const possibleEdges = pathEdgeMapper(possiblePaths);
+      const graph = buildGraph(possibleEdges[0]);
+      const expectIsConnected = isConnected(graph);
+      expect(expectIsConnected).to.equal(true);
+    });
     it('should return false when paths = [2 6, 5 7]', () => {
-      const vertex2 = new Object(2);
-      const vertex6 = new Object(6);
-      const vertex5 = new Object(5);
-      const vertex7 = new Object(7);
-      paths = [{ a: vertex2, b: vertex6 }, { a: vertex5, b: vertex7 }];
+      const vertex2 = 2;
+      const vertex6 = 6;
+      const vertex5 = 5;
+      const vertex7 = 7;
+      const paths = [{ a: vertex2, b: vertex6 }, { a: vertex5, b: vertex7 }];
       const graph = buildGraph(paths);
       const expectIsConnected = isConnected(graph);
       expect(expectIsConnected).to.equal(false);
@@ -35,10 +49,10 @@ describe('Solution', () => {
   });
   describe('getTotalFans', () => {
     describe('when paths = [2 5, 5 6]', () => {
-      const vertex2 = new Object(2);
-      const vertex6 = new Object(6);
-      const vertex5 = new Object(5);
-      paths = [{ a: vertex2, b: vertex6 }, { a: vertex5, b: vertex6 }];
+      const vertex2 = 2;
+      const vertex6 = 6;
+      const vertex5 = 5;
+      const paths = [{ a: vertex2, b: vertex6 }, { a: vertex5, b: vertex6 }];
       const graph = buildGraph(paths);
       const expectTotalFans = getTotalFans(graph);
       it('should return 100', () => {
@@ -46,10 +60,10 @@ describe('Solution', () => {
       });
     });
     describe('when paths = [1 3, 1 4]', () => {
-      const vertex1 = new Object(1);
-      const vertex3 = new Object(3);
-      const vertex4 = new Object(4);
-      paths = [{ a: vertex1, b: vertex3 }, { a: vertex1, b: vertex4 }];
+      const vertex1 = 1;
+      const vertex3 = 3;
+      const vertex4 = 4;
+      const paths = [{ a: vertex1, b: vertex3 }, { a: vertex1, b: vertex4 }];
       const graph = buildGraph(paths);
       const expectTotalFans = getTotalFans(graph);
       it('should return 26', () => {
@@ -78,7 +92,7 @@ describe('Solution', () => {
     });
   });
   describe('generateCombination', () => {
-    describe('when array = [{ a: 2, b: 1 }, { a: 2, b: 6 }, { a: 4, b: 2 }, { a: 5, b: 6 }, { a: 2, b: 3 }] and length = 2', () => {
+    describe('when array = [{a:2,b:1},{a:2,b:6},{a:4,b:2},{a:5,b:6},{a:2,b:3}],length = 2', () => {
       it('should return 10 correct combinations', () => {
         const array = [{ a: 2, b: 1 }, { a: 2, b: 6 },
           { a: 4, b: 2 }, { a: 5, b: 6 }, { a: 2, b: 3 }];
@@ -102,8 +116,9 @@ describe('Solution', () => {
     describe('when paths = [2 1, 2 6, 4 2, 5 6, 2 3]', () => {
       describe('when districtNum = 6 & contestantNumToRemove = 3', () => {
         it('should returns [1 3 4]', () => {
-          districtNum = 6; contestantNumToRemove = 3;
-          paths = [{ a: 2, b: 1 }, { a: 2, b: 6 }, { a: 4, b: 2 }, { a: 5, b: 6 }, { a: 2, b: 3 }];
+          const districtNum = 6; const contestantNumToRemove = 3;
+          const paths = [{ a: 2, b: 1 }, { a: 2, b: 6 },
+            { a: 4, b: 2 }, { a: 5, b: 6 }, { a: 2, b: 3 }];
           const expectedRes = [1, 3, 4];
           const res = getRemovedContestants(districtNum, contestantNumToRemove, paths);
           expect(res).to.equal(expectedRes);
