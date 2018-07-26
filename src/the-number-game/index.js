@@ -61,13 +61,14 @@ const getRemovedContestants = (districtNum, contestantNumToRemove, paths) => {
     }
   });
   const desiredTree = possibleTrees.reduce((prev, curr) => (prev.fans > curr.fans ? prev : curr));
-  const excludedDistrict = [];
+  let excludedDistrict = [];
   for (let district = 1; district <= districtNum; district++) {
     if (!desiredTree.districts.includes(district)) {
       excludedDistrict.push(district);
     }
   }
   if (edgesNum === 0) {
+    excludedDistrict = [];
     for (let district = 1; district < districtNum; district++) {
       excludedDistrict.push(district);
     }
