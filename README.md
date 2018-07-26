@@ -1,4 +1,4 @@
-# Solutions for some pproblems
+# Solutions for some problems
 ## Problem 1: Bus Video System
 https://codeforces.com/problemset/problem/978/E
 ## Problem 2: The Number Games
