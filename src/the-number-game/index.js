@@ -1,5 +1,5 @@
 
-/* eslint-disable no-plusplus, no-new-object, no-cond-assign */
+/* eslint-disable no-plusplus, no-cond-assign */
 
 // https://codeforces.com/problemset/problem/980/E
 
@@ -15,24 +15,26 @@ const generateCombination = (array, length) => {
   }
   return resArray;
 };
-const getGraphVertices = graph => graph;
 
-const isConnected = (tree, verticesNum) => {
-  const labels = new Array(verticesNum);
-  for (let i = 0; i < verticesNum; ++i) {
-    labels[i] = tree.find(i);
+const getVertices = paths2d => paths2d.reduce((paths, pathsArr) => pathsArr.concat(paths))
+  .filter((path, pos, filteredPaths) => filteredPaths.indexOf(path) === pos);
+
+const isConnected = (tree, paths2d) => {
+  const vertices = getVertices(paths2d);
+  for (let vertex = 0; vertex < vertices.length; vertex++) {
+    for (let neaborVertex = vertex + 1; neaborVertex < vertices.length; neaborVertex++) {
+      if (tree.find(vertices[vertex]) !== tree.find(vertices[neaborVertex])) {
+        return false;
+      }
+    }
   }
-  const newLabel = labels.filter((item, pos, arr) => arr.indexOf(item) === pos);
-  if (newLabel.length === 1) {
-    return true;
-  }
-  return false;
+  return true;
 };
 
 const getTotalFans = (districts) => {
   let total = 0;
   districts.forEach((district) => {
-    total += 2 ** (district + 1);
+    total += 2 ** district;
   });
   return total;
 };
@@ -44,29 +46,38 @@ const buildTree = (verticesNum, edges) => {
   }
   return tree;
 };
-const mapPaths = paths => paths.map(path => [path[0] - 1, path[1] - 1]);
 
 const getRemovedContestants = (districtNum, contestantNumToRemove, paths) => {
   const vertexNum = districtNum - contestantNumToRemove;
   const edgesNum = vertexNum - 1;
-  const mappedPaths = mapPaths(paths);
-  const possiblePaths = generateCombination(mappedPaths, edgesNum);
-  const possibleGraphs = [];
+  const possiblePaths = generateCombination(paths, edgesNum);
+  const possibleTrees = [];
+
   possiblePaths.forEach((edges) => {
-    const graph = buildTree(edges);
-    if (isConnected(graph)) {
-      possibleGraphs.push({ fans: getTotalFans(graph), graph: getGraphVertices(graph) });
-    } else {
-      console.log('-->>', edges);
+    const vertices = getVertices(edges);
+    const tree = buildTree(Math.max(...vertices), edges);
+    if (isConnected(tree, edges)) {
+      possibleTrees.push({ fans: getTotalFans(vertices), districts: vertices });
     }
   });
-  console.log(possibleGraphs);
-  return 1;
+  const desiredTree = possibleTrees.reduce((prev, curr) => (prev.fans > curr.fans ? prev : curr));
+  const excludedDistrict = [];
+  for (let district = 1; district <= districtNum; district++) {
+    if (!desiredTree.districts.includes(district)) {
+      excludedDistrict.push(district);
+    }
+  }
+  if (edgesNum === 0) {
+    for (let district = 1; district < districtNum; district++) {
+      excludedDistrict.push(district);
+    }
+  }
+  return excludedDistrict;
 };
 
 module.exports = {
   generateCombination,
-  getGraphVertices,
+  getVertices,
   isConnected,
   getTotalFans,
   buildTree,
