@@ -28,6 +28,9 @@ const computeDistributionDifficulty = (difficultyArray, distribution) => {
 };
 const computeDifficulty = (distance, difficultyArray) => {
   let res = 0;
+  if (distance === 1) {
+    return difficultyArray.pop();
+  }
   const distributions = combinator.baseN([0, 1], distance - 1).toArray();
   distributions.forEach((distribution) => {
     res += computeDistributionDifficulty(difficultyArray, distribution);
