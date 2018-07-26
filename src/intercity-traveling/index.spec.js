@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const sut = require('./index');
 
-describe.only('Intercity-Travelling Solution', () => {
+describe('Intercity-Travelling Solution', () => {
   describe('computeRestSitesIndexs', () => {
     describe('when distrbution = [1, 0, 1, 0, 1]', () => {
       it('returns [1, 1, 2, 1, 2, 1]', () => {

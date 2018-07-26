@@ -1,5 +1,5 @@
 
-// https://codeforces.com/problemset/problem/980/E
+// https://codeforces.com/problemset/problem/978/E
 const getPossibleWays = (busCapacity, busStopsRecords) => {
   const recordsSum = busStopsRecords.reduce((acc, item) => {
     if (item > 0) {
