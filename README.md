@@ -5,6 +5,8 @@ https://codeforces.com/problemset/problem/978/E
 https://codeforces.com/problemset/problem/980/E
 ## Problem 3: Intercity Travelling
 https://codeforces.com/problemset/problem/1009/E
+## Problem 4: Mini Merto
+// https://codeforces.com/problemset/problem/1007/E
 
 ```js
 npm run test:watch

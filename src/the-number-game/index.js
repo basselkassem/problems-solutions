@@ -1,6 +1,4 @@
 
-/* eslint-disable no-plusplus, no-cond-assign */
-
 // https://codeforces.com/problemset/problem/980/E
 
 const UnionFind = require('union-find');

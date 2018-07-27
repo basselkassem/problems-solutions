@@ -2,5 +2,10 @@
 	"extends": ["airbnb-base"],
 	"env": {
 		"mocha": true	
-	}
+  },
+  "rules": {
+    "no-plusplus": "off",
+    "no-cond-assign": "off",
+    "no-param-reassign": "off"
+  } 
 } 

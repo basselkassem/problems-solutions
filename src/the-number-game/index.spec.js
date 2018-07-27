@@ -1,5 +1,3 @@
-/* eslint-disable no-cond-assign */
-
 const { expect } = require('chai');
 const {
   generateCombination, isConnected, getRemovedContestants, buildTree, getTotalFans,

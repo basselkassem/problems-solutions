@@ -1,6 +1,3 @@
-
-/* eslint-disable no-plusplus, no-cond-assign */
-
 // https://codeforces.com/problemset/problem/1009/E
 const combinator = require('js-combinatorics');
 
