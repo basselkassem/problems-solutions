@@ -37,6 +37,10 @@ class Station {
     this.currentPeopleNum = this.currentPeopleNum + this.comingPeopleNum;
   }
 
+  updateToBeforeEachHourPassing() {
+    this.currentPeopleNum = this.currentPeopleNum - this.comingPeopleNum;
+  }
+
   updateAfterTrainPickUp(pickedUpPeople) {
     this.currentPeopleNum = this.currentPeopleNum - pickedUpPeople;
   }
@@ -80,6 +84,12 @@ class SubWay {
     });
   }
 
+  updateToBeforeEachHourPassing() {
+    this.stations.forEach((station) => {
+      station.updateToBeforeEachHourPassing();
+    });
+  }
+
   updateAfterTrainPass(train) {
     this.stations.forEach((station) => {
       station.passTrain(train);
@@ -103,19 +113,21 @@ class Game {
   }
 
   solve() {
-    for (let hour = 0; hour < this.hoursNum; hour++) {
-      if (hour !== 0) {
-        this.subWay.updateAfterEachHourPassing();
-      }
+    for (let hour = 0; hour <= this.hoursNum; hour++) {
       const train = new Train(this.trainCapacity);
-      this.addTrain(train);
-      this.subWay.updateAfterTrainPass(train);
-      if (this.subWay.isFull()) {
+      if (hour === 0) {
         this.addTrain(train);
-        // return;
+        this.subWay.updateAfterTrainPass(train);
+        this.subWay.updateAfterEachHourPassing();
+      } else {
+        this.subWay.updateAfterEachHourPassing();
+        if (this.subWay.isFull()) {
+          this.subWay.updateToBeforeEachHourPassing();
+          this.addTrain(train);
+          this.subWay.updateAfterTrainPass(train);
+        }
       }
     }
-    this.trains.pop();
   }
 }
 const findMinimumTrains = (stationNum, hoursNum, trainCapacity, ai, bi, ci) => {

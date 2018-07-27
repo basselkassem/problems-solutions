@@ -151,17 +151,119 @@ describe.only('mini-merto solution', () => {
       });
     });
   });
-  describe('Game', () => {
-    // describe('GameSubWay when tain pass it', () => {
-    //   it('', () => {
-    //     const stationNum = 3; const hoursNum = 3; const trainCapacity = 10;
-    //     const ai = [2, 3, 4];
-    //     const bi = [4, 3, 2];
-    //     const ci = [10, 9, 8];
-    //     const game = new sut.Game(stationNum, hoursNum, trainCapacity, ai, bi, ci);
-    //     expect(game.trains.length).to.equal(2);
-    //   });
-    // });
+  describe.only('Game', () => {
+    describe('when stations = 3', () => {
+      const stationNum = 3; const hoursNum = 3; const trainCapacity = 10;
+      const ai = [2, 3, 4];
+      const bi = [4, 3, 2];
+      const ci = [10, 9, 8];
+      const game = new sut.Game(stationNum, hoursNum, trainCapacity, ai, bi, ci);
+      describe('at hour = 0', () => {
+        it('retuns [2 , 3 , 4] before ', () => {
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([2, 3, 4]);
+        });
+        it('returns [0, 0, 0] after', () => {
+          const train = new sut.Train(trainCapacity);
+          game.subWay.updateAfterTrainPass(train);
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([0, 0, 0]);
+        });
+      });
+      describe('at hour = 1', () => {
+        it('retuns [4 , 3 , 2] before ', () => {
+          game.subWay.updateAfterEachHourPassing();
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([4, 3, 2]);
+        });
+        it('returns [8, 6, 4] after', () => {
+          game.subWay.updateAfterEachHourPassing();
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([8, 6, 4]);
+        });
+      });
+      describe('at hour = 2', () => {
+        it('retuns [8, 6, 4] before ', () => {
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([8, 6, 4]);
+        });
+        it('returns [0, 4, 4] after', () => {
+          const train = new sut.Train(trainCapacity);
+          game.subWay.updateAfterTrainPass(train);
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([0, 4, 4]);
+        });
+      });
+      describe('at hour = 3', () => {
+        it('retuns [4, 7, 6] before ', () => {
+          game.subWay.updateAfterEachHourPassing();
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([4, 7, 6]);
+        });
+      });
+    });
+    describe.only('when stations = 4', () => {
+      const stationNum = 4; const hoursNum = 10; const trainCapacity = 5;
+      const ai = [1, 1, 0, 2];
+      const bi = [1, 0, 5, 7];
+      const ci = [1, 1, 8, 100];
+      const game = new sut.Game(stationNum, hoursNum, trainCapacity, ai, bi, ci);
+      describe('at hour = 0', () => {
+        it('retuns [2 , 3 , 4] before ', () => {
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([2, 3, 4]);
+        });
+        it('returns [0, 0, 0] after', () => {
+          const train = new sut.Train(trainCapacity);
+          game.subWay.updateAfterTrainPass(train);
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([0, 0, 0]);
+        });
+      });
+      describe('at hour = 1', () => {
+        it('retuns [4 , 3 , 2] before ', () => {
+          game.subWay.updateAfterEachHourPassing();
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([4, 3, 2]);
+        });
+        it('returns [8, 6, 4] after', () => {
+          game.subWay.updateAfterEachHourPassing();
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([8, 6, 4]);
+        });
+      });
+      describe('at hour = 2', () => {
+        it('retuns [8, 6, 4] before ', () => {
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([8, 6, 4]);
+        });
+        it('returns [0, 4, 4] after', () => {
+          const train = new sut.Train(trainCapacity);
+          game.subWay.updateAfterTrainPass(train);
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([0, 4, 4]);
+        });
+      });
+      describe('at hour = 3', () => {
+        it('retuns [8, 6, 4] before ', () => {
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([8, 6, 4]);
+        });
+        it('returns [0, 4, 4] after', () => {
+          const train = new sut.Train(trainCapacity);
+          game.subWay.updateAfterTrainPass(train);
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([0, 4, 4]);
+        });
+      });
+      describe('at hour = 3', () => {
+        it('retuns [4, 7, 6] before ', () => {
+          game.subWay.updateAfterEachHourPassing();
+          const res = game.subWay.stations.map(item => item.currentPeopleNum);
+          expect(res).to.deep.equal([4, 7, 6]);
+        });
+      });
+    });
   });
   describe('findMinimumTrains', () => {
     describe('when stationNum = 3, hoursNum = 3, trainCapacity = 10', () => {
