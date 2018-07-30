@@ -109,101 +109,49 @@ class SubWay {
     }
     return trainCounter;
   }
-
-  updateToHour(hour) {
-    let counter = hour;
-    while (counter > 0) {
-      this.updateOneHour();
-      counter--;
-    }
-  }
-
-  updateBeforeHour(hour) {
-    let counter = hour;
-    while (counter > 0) {
-      this.updateBeforeOneHour();
-      counter--;
-    }
-  }
-
-  canUpdateToHour(hour) {
-    this.updateToHour(hour);
-    return this.isFull();
-  }
 }
 
 class Game {
   constructor(stationNum, hoursNum, trainCapacity, ai, bi, ci) {
     this.hoursNum = hoursNum;
     this.subWay = new SubWay(stationNum, ai, bi, ci);
-    this.trains = [];
     this.trainCapacity = trainCapacity;
   }
 
-  addTrain(newTrain) {
-    this.trains.push(newTrain);
+  getNeededTrains(hour1, hour2, alreadyPassedTrainsNum) {
+    const copySubway = this.subWay.copy();
+    const needTrains = new Array(this.hoursNum);
+    for (let i = hour1; i < hour2; i++) {
+      copySubway.updateOneHour();
+      const neededTrainsNum = copySubway.getNeededTrainsNum(this.trainCapacity);
+      needTrains[i] = neededTrainsNum;
+      copySubway.updateBeforeOneHour();
+      let counter = neededTrainsNum;
+      while (counter > 0) {
+        const train = new Train(this.trainCapacity);
+        copySubway.updateAfterTrainPassed(train);
+        counter--;
+      }
+      copySubway.updateOneHour();
+    }
+    return needTrains.reduce((item, acc) => acc + item) + alreadyPassedTrainsNum;
   }
 
   solve() {
-    const d = new Array(this.hoursNum);
+    const tarinsNeededToCompleteGame = new Array(this.hoursNum);
     for (let i = 0; i < this.hoursNum; i++) {
-      d[i] = new Array(this.hoursNum);
-      for (let j = 0; j < this.hoursNum; j++) {
-        d[i][j] = 0;
-      }
+      const train = new Train(this.trainCapacity);
+      this.subWay.updateAfterTrainPassed(train);
+      const alreadyPassedTrainsNum = i + 1;
+      tarinsNeededToCompleteGame[i] = this.getNeededTrains(i, this.hoursNum, alreadyPassedTrainsNum);
+      this.subWay.updateOneHour();
     }
-    for (let t = 1; t <= this.hoursNum; t++) {
-      for (let i = 0, j = t; j <= this.hoursNum; i++, j++) {
-        if (this.subWay.isFull()) {
-          const neededTrainsNum = this.subWay.getNeededTrainsNum(this.trainCapacity);
-          let counter = neededTrainsNum;
-          while (counter > 0) {
-            const train = new Train(this.trainCapacity);
-            this.subWay.updateAfterTrainPassed(train);
-            counter--;
-          }
-          d[i][j] = neededTrainsNum;
-          // this.subWay.updateOneHour();
-        }
-        let trainsNumi;
-        let trainsNumj;
-        if (this.subWay.canUpdateToHour(i)) {
-          this.subWay.updateToHour(i);
-          trainsNumi = this.subWay.getNeededTrainsNum(this.trainCapacity);
-          this.subWay.updateBeforeHour(i);
-        }
-        console.log(this.subWay.stations.map(item => item.currentPeopleNum));
-        if (this.subWay.canUpdateToHour(j)) {
-          this.subWay.updateToHour(j);
-          trainsNumj = this.subWay.getNeededTrainsNum(this.trainCapacity);
-          this.subWay.updateBeforeHour(j);
-        }
-        console.log(this.subWay.stations.map(item => item.currentPeopleNum));
-        console.log(i, j, '->:', trainsNumi, trainsNumj);
-        d[i][j] = Math.min(trainsNumi, trainsNumj);
-      }
-    }
-    return d[1][this.hoursNum];
-  }
-
-  solveV1(hour1, hour2) {
-    if (hour1 === hour2) {
-      let neededTrain = this.subWay.getNeededTrainsNum(this.trainCapacity);
-      if (this.subWay.isFull()) {
-        neededTrain = this.subWay.getNeededTrainsNum(this.trainCapacity);
-        const train = new Train(this.trainCapacity);
-        this.subWay.updateAfterTrainPassed(train);
-        return neededTrain;
-      }
-      return 0;
-    }
-    this.subWay.updateOneHour();
-    return Math.min(this.solveV1(hour1, hour2 - 1), this.solveV1(hour1 + 1, hour2));
+    return Math.min(...tarinsNeededToCompleteGame);
   }
 }
 const findMinimumTrains = (stationNum, hoursNum, trainCapacity, ai, bi, ci) => {
   const game = new Game(stationNum, hoursNum, trainCapacity, ai, bi, ci);
-  return game.solve(hoursNum);
+  return game.solve();
 };
 module.exports = {
   Train,
