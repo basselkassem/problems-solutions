@@ -118,7 +118,7 @@ class Game {
     this.trainCapacity = trainCapacity;
   }
 
-  getNeededTrains(hour1, hour2, alreadyPassedTrainsNum) {
+  getNeededTrainsNum(hour1, hour2, alreadyPassedTrainsNum) {
     const copySubway = this.subWay.copy();
     const needTrains = new Array(this.hoursNum);
     for (let i = hour1; i < hour2; i++) {
@@ -143,7 +143,7 @@ class Game {
       const train = new Train(this.trainCapacity);
       this.subWay.updateAfterTrainPassed(train);
       const alreadyPassedTrainsNum = i + 1;
-      tarinsNeededToCompleteGame[i] = this.getNeededTrains(i, this.hoursNum, alreadyPassedTrainsNum);
+      tarinsNeededToCompleteGame[i] = this.getNeededTrainsNum(i, this.hoursNum, alreadyPassedTrainsNum);
       this.subWay.updateOneHour();
     }
     return Math.min(...tarinsNeededToCompleteGame);
