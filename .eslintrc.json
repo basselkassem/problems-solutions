@@ -6,6 +6,7 @@
   "rules": {
     "no-plusplus": "off",
     "no-cond-assign": "off",
-    "no-param-reassign": "off"
+    "no-param-reassign": "off",
+    "max-len": "warn"
   } 
 } 

@@ -17,10 +17,8 @@ class Train {
       this.currentPassengersNum = this.currentPassengersNum + station.currentPeopleNum;
       station.currentPeopleNum = 0;
     } else {
-      if (this.currentPassengersNum < this.maxCapacity) {
-        const x = this.maxCapacity - this.currentPassengersNum;
-        station.currentPeopleNum -= x;
-      }
+      const exccesPeopleNum = this.maxCapacity - this.currentPassengersNum;
+      station.currentPeopleNum -= exccesPeopleNum;
       this.currentPassengersNum = this.maxCapacity;
     }
   }
@@ -33,26 +31,26 @@ class Station {
     this.currentPeopleNum = initPeopleNum;
   }
 
-  updateAfterEachHourPassing() {
+  copy() {
+    return Object.assign(Object.create(this), this);
+  }
+
+  updateOneHour() {
     this.currentPeopleNum = this.currentPeopleNum + this.comingPeopleNum;
   }
 
-  updateToBeforeEachHourPassing() {
+  updateBeforeOneHour() {
     this.currentPeopleNum = this.currentPeopleNum - this.comingPeopleNum;
   }
 
-  updateAfterTrainPickUp(pickedUpPeople) {
-    this.currentPeopleNum = this.currentPeopleNum - pickedUpPeople;
-  }
-
-  passTrain(train) {
+  updateAfterTrainPickUp(train) {
     if (train.canPickUpPassengers()) {
       train.pickUpPassengers(this);
     }
   }
 
   isFull() {
-    if (this.currentPeopleNum < this.stationCapacity) {
+    if (this.currentPeopleNum <= this.stationCapacity) {
       return false;
     }
     return true;
@@ -68,6 +66,12 @@ class SubWay {
     }
   }
 
+  copy() {
+    const copySubway = new SubWay();
+    copySubway.stations = this.stations.map(station => station.copy());
+    return copySubway;
+  }
+
   isFull() {
     for (let stationIndex = 0; stationIndex < this.stations.length; stationIndex++) {
       if (this.stations[stationIndex].isFull()) {
@@ -77,29 +81,57 @@ class SubWay {
     return false;
   }
 
-
-  updateAfterEachHourPassing() {
+  updateOneHour() {
     this.stations.forEach((station) => {
-      station.updateAfterEachHourPassing();
+      station.updateOneHour();
     });
   }
 
-  updateToBeforeEachHourPassing() {
+  updateBeforeOneHour() {
     this.stations.forEach((station) => {
-      station.updateToBeforeEachHourPassing();
+      station.updateBeforeOneHour();
     });
   }
 
-  updateAfterTrainPass(train) {
+  updateAfterTrainPassed(train) {
     this.stations.forEach((station) => {
-      station.passTrain(train);
+      station.updateAfterTrainPickUp(train);
     });
   }
 
-  shouldTrainPickUpPeople() {
+  getNeededTrainsNum(trainCapacity) {
+    let trainCounter = 0;
+    const copySubWay = this.copy();
+    while (copySubWay.isFull()) {
+      const train = new Train(trainCapacity);
+      copySubWay.updateAfterTrainPassed(train);
+      trainCounter++;
+    }
+    return trainCounter;
+  }
+
+  updateToHour(hour) {
+    let counter = hour;
+    while (counter > 0) {
+      this.updateOneHour();
+      counter--;
+    }
+  }
+
+  updateBeforeHour(hour) {
+    let counter = hour;
+    while (counter > 0) {
+      this.updateBeforeOneHour();
+      counter--;
+    }
+  }
+
+  canUpdateToHour(hour) {
+    this.updateToHour(hour);
     return this.isFull();
   }
 }
+
 class Game {
   constructor(stationNum, hoursNum, trainCapacity, ai, bi, ci) {
     this.hoursNum = hoursNum;
@@ -113,28 +145,65 @@ class Game {
   }
 
   solve() {
-    for (let hour = 0; hour <= this.hoursNum; hour++) {
-      const train = new Train(this.trainCapacity);
-      if (hour === 0) {
-        this.addTrain(train);
-        this.subWay.updateAfterTrainPass(train);
-        this.subWay.updateAfterEachHourPassing();
-      } else {
-        this.subWay.updateAfterEachHourPassing();
-        if (this.subWay.isFull()) {
-          this.subWay.updateToBeforeEachHourPassing();
-          this.addTrain(train);
-          this.subWay.updateAfterTrainPass(train);
-        }
+    const d = new Array(this.hoursNum);
+    for (let i = 0; i < this.hoursNum; i++) {
+      d[i] = new Array(this.hoursNum);
+      for (let j = 0; j < this.hoursNum; j++) {
+        d[i][j] = 0;
       }
     }
+    for (let t = 1; t <= this.hoursNum; t++) {
+      for (let i = 0, j = t; j <= this.hoursNum; i++, j++) {
+        if (this.subWay.isFull()) {
+          const neededTrainsNum = this.subWay.getNeededTrainsNum(this.trainCapacity);
+          let counter = neededTrainsNum;
+          while (counter > 0) {
+            const train = new Train(this.trainCapacity);
+            this.subWay.updateAfterTrainPassed(train);
+            counter--;
+          }
+          d[i][j] = neededTrainsNum;
+          // this.subWay.updateOneHour();
+        }
+        let trainsNumi;
+        let trainsNumj;
+        if (this.subWay.canUpdateToHour(i)) {
+          this.subWay.updateToHour(i);
+          trainsNumi = this.subWay.getNeededTrainsNum(this.trainCapacity);
+          this.subWay.updateBeforeHour(i);
+        }
+        console.log(this.subWay.stations.map(item => item.currentPeopleNum));
+        if (this.subWay.canUpdateToHour(j)) {
+          this.subWay.updateToHour(j);
+          trainsNumj = this.subWay.getNeededTrainsNum(this.trainCapacity);
+          this.subWay.updateBeforeHour(j);
+        }
+        console.log(this.subWay.stations.map(item => item.currentPeopleNum));
+        console.log(i, j, '->:', trainsNumi, trainsNumj);
+        d[i][j] = Math.min(trainsNumi, trainsNumj);
+      }
+    }
+    return d[1][this.hoursNum];
+  }
+
+  solveV1(hour1, hour2) {
+    if (hour1 === hour2) {
+      let neededTrain = this.subWay.getNeededTrainsNum(this.trainCapacity);
+      if (this.subWay.isFull()) {
+        neededTrain = this.subWay.getNeededTrainsNum(this.trainCapacity);
+        const train = new Train(this.trainCapacity);
+        this.subWay.updateAfterTrainPassed(train);
+        return neededTrain;
+      }
+      return 0;
+    }
+    this.subWay.updateOneHour();
+    return Math.min(this.solveV1(hour1, hour2 - 1), this.solveV1(hour1 + 1, hour2));
   }
 }
 const findMinimumTrains = (stationNum, hoursNum, trainCapacity, ai, bi, ci) => {
   const game = new Game(stationNum, hoursNum, trainCapacity, ai, bi, ci);
-  game.solve();
-
-  return game.trains.length;
+  return game.solve(hoursNum);
 };
 module.exports = {
   Train,

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon ./src/index.js",
-    "test": "mocha --recursive \"./src/*.spec.js\"",
+    "test": "mocha --recursive \"./src/**/*.spec.js\"",
     "test:watch": "mocha --recursive --watch \"./src/**/*.spec.js\""
   },
   "author": "",
