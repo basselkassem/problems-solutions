@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const sut = require('./index');
 
-describe.only('mini-merto solution', () => {
+describe('mini-merto solution', () => {
   describe('Train', () => {
     describe('canPickUpPassengers', () => {
       it('return true when station.', () => {
