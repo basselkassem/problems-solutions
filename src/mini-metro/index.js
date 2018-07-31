@@ -58,10 +58,10 @@ class Station {
 }
 
 class SubWay {
-  constructor(stationNum, ai, bi, ci) {
+  constructor(stationNum, initPeopleNum, comingPeopleNum, stationCapacites) {
     this.stations = [];
     for (let stationIndex = 0; stationIndex < stationNum; stationIndex++) {
-      const station = new Station(ai[stationIndex], bi[stationIndex], ci[stationIndex]);
+      const station = new Station(initPeopleNum[stationIndex], comingPeopleNum[stationIndex], stationCapacites[stationIndex]);
       this.stations.push(station);
     }
   }
@@ -100,21 +100,21 @@ class SubWay {
   }
 
   getNeededTrainsNum(trainCapacity) {
-    let trainCounter = 0;
+    let trainsCounter = 0;
     const copySubWay = this.copy();
     while (copySubWay.isFull()) {
       const train = new Train(trainCapacity);
       copySubWay.updateAfterTrainPassed(train);
-      trainCounter++;
+      trainsCounter++;
     }
-    return trainCounter;
+    return trainsCounter;
   }
 }
 
 class Game {
-  constructor(stationNum, hoursNum, trainCapacity, ai, bi, ci) {
+  constructor(stationNum, hoursNum, trainCapacity, initPeopleNum, comingPeopleNum, stationCapacites) {
     this.hoursNum = hoursNum;
-    this.subWay = new SubWay(stationNum, ai, bi, ci);
+    this.subWay = new SubWay(stationNum, initPeopleNum, comingPeopleNum, stationCapacites);
     this.trainCapacity = trainCapacity;
   }
 
@@ -149,8 +149,8 @@ class Game {
     return Math.min(...tarinsNeededToCompleteGame);
   }
 }
-const findMinimumTrains = (stationNum, hoursNum, trainCapacity, ai, bi, ci) => {
-  const game = new Game(stationNum, hoursNum, trainCapacity, ai, bi, ci);
+const findMinimumTrains = (stationNum, hoursNum, trainCapacity, initPeopleNum, comingPeopleNum, stationCapacites) => {
+  const game = new Game(stationNum, hoursNum, trainCapacity, initPeopleNum, comingPeopleNum, stationCapacites);
   return game.solve();
 };
 module.exports = {

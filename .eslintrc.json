@@ -7,7 +7,7 @@
     "no-plusplus": "off",
     "no-cond-assign": "off",
     "no-param-reassign": "off",
-    "max-len": "warn",
+    "max-len": "off",
     "object-curly-newline": "off"
   } 
 } 
