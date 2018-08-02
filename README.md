@@ -7,6 +7,8 @@ https://codeforces.com/problemset/problem/980/E
 https://codeforces.com/problemset/problem/1009/E
 ## Problem 4: Mini Merto
 // https://codeforces.com/problemset/problem/1007/E
+## Problem 5: Passports
+https://codeforces.com/problemset/problem/1012/F
 
 ```js
 npm run test:watch
