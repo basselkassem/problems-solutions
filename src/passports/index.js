@@ -1,5 +1,7 @@
 // https://codeforces.com/problemset/problem/1012/F
 
+const NOT_VISA_APPLICTION_DAY = 1000;
+
 class Trip {
   constructor(toCountry, startDay, duration, availableDaysBefore = []) {
     this.toCountry = toCountry;
@@ -50,6 +52,10 @@ class Passport {
 
   addVisa(visa) {
     this.visas.push(visa);
+  }
+
+  removeLastVisa() {
+    this.visas.pop();
   }
 }
 const fillArray = (start, end) => Array(end - start).fill().map((item, index) => start + index);
@@ -120,17 +126,25 @@ class SolAlgorithm {
     });
   }
 
-  solveUsingPassport(tripsCopy, passport) {
-    tripsCopy.forEach((trip) => {
-      const consulate = this.getConsulate(trip.toCountry);
-      if (consulate.VisaIssuingDuration < trip.availableDaysBefore.length) {
-        const visa = new Visa(trip.toCountry);
-        const startIssuingDay = trip.availableDaysBefore[0];
-        consulate.issue(visa, startIssuingDay);
-        passport.addVisa(visa);
-        SolAlgorithm.updateTripsAvailableDaysBefore(tripsCopy, consulate.VisaIssuingDuration);
+  solveUsingPassport(trips, passport) {
+    for (let index = 0; index < trips.length; index++) {
+      const consulate = this.getConsulate(trips[index].toCountry);
+      if (consulate.VisaIssuingDuration < trips[index].availableDaysBefore.length) {
+        let visa = new Visa(trips[index].toCountry);
+        let startIssuingDay = trips[index].availableDaysBefore[0];
+        if (startIssuingDay !== NOT_VISA_APPLICTION_DAY) {
+          consulate.issue(visa, startIssuingDay);
+          passport.addVisa(visa);
+          SolAlgorithm.updateTripsAvailableDaysBefore(trips, consulate.VisaIssuingDuration);
+        } else {
+          visa = new Visa(trips[index].toCountry);
+          startIssuingDay = trips[index - 1].getEndDay() + 1;
+          consulate.issue(visa, startIssuingDay);
+          passport.addVisa(visa);
+          SolAlgorithm.updateTripsAvailableDaysBefore(trips, consulate.VisaIssuingDuration);
+        }
       }
-    });
+    }
   }
 
   copyTrips() {
@@ -144,10 +158,10 @@ class SolAlgorithm {
     return visas;
   }
 
-  static addDaysToTrips(trips, excludedTrip) {
+  static addAvailableDaysBeforeToTrips(trips, excludedTrip) {
     trips.forEach((trip) => {
       if (excludedTrip.getEndDay() < trip.startDay) {
-        const array = fillArray(excludedTrip.startDay, excludedTrip.getEndDay() + 1);
+        const array = Array(excludedTrip.getEndDay() + 1 - excludedTrip.startDay).fill(NOT_VISA_APPLICTION_DAY);
         trip.availableDaysBefore = trip.availableDaysBefore.concat(array);
         trip.availableDaysBefore.sort((a, b) => a - b);
       }
@@ -159,15 +173,9 @@ class SolAlgorithm {
     countries.forEach((country) => {
       trips = trips.filter((trip, pos, arr) => arr.map(item => item.toCountry).indexOf(country) !== pos);
       const excludedTrip = allTrips.find(trip => trip.toCountry === country);
-      SolAlgorithm.addDaysToTrips(trips, excludedTrip);
+      SolAlgorithm.addAvailableDaysBeforeToTrips(trips, excludedTrip);
     });
     return trips;
-  }
-
-  displayPassports() {
-    this.passports.forEach((passport) => {
-      console.log(passport.passportId, passport.visas);
-    });
   }
 
   solve() {
