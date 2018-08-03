@@ -66,7 +66,7 @@ describe.only('Passports Problem', () => {
           const visaIssuingDurations = [1, 1];
           const res = sut.canMakeTripsOnTime(tripsNum, passportsNum, tripsStartDays, tripsDurations, visaIssuingDurations);
           const expectRes = {
-            howToGetVisasOnTime: [{ passport: 1, visas: [{ visa: 1, applicationDay: 1 }, { visa: 2, applicationDay: 2 }] }],
+            howToGetVisasOnTime: [{ passport: 1, visas: [{ visa: 1, applicationDay: 1 }, { visa: 2, applicationDay: 5 }] }],
           };
           expect(res.canGetVisasOnTime).to.equal('yes');
           expect(res.howToGetVisasOnTime).to.deep.equal(expectRes.howToGetVisasOnTime);
@@ -116,6 +116,19 @@ describe.only('Passports Problem', () => {
           };
           expect(res.canGetVisasOnTime).to.equal('yes');
           expect(res.howToGetVisasOnTime).to.deep.equal(expectRes.howToGetVisasOnTime);
+        });
+      });
+    });
+
+    describe('when tripsNum = 3; passportsNum = 1', () => {
+      describe('tripsStartDays = [7, 13, 19]; tripsLengths = [3, 2, 3]; visaIssuingDurations = [1, 3, 4]', () => {
+        it('should return no', () => {
+          const tripsNum = 3; const passportsNum = 1;
+          const tripsStartDays = [7, 13, 19];
+          const tripsDurations = [3, 2, 3];
+          const visaIssuingDurations = [1, 3, 4];
+          const res = sut.canMakeTripsOnTime(tripsNum, passportsNum, tripsStartDays, tripsDurations, visaIssuingDurations);
+          expect(res.canGetVisasOnTime).to.equal('no');
         });
       });
     });

@@ -126,16 +126,31 @@ class SolAlgorithm {
     });
   }
 
+  static doesVisaIssuingDurationIntersectWithTrip(trips, index, visa) {
+    for (let i = 0; i < index; i++) {
+      if (visa.startIssuingDay < trips[i].startDay && visa.endIssuingDay >= trips[i].getEndDay()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   solveUsingPassport(trips, passport) {
     for (let index = 0; index < trips.length; index++) {
       const consulate = this.getConsulate(trips[index].toCountry);
       if (consulate.VisaIssuingDuration < trips[index].availableDaysBefore.length) {
         let visa = new Visa(trips[index].toCountry);
-        let startIssuingDay = trips[index].availableDaysBefore[0];
+        let startIssuingDay = trips[index].availableDaysBefore[index];
         if (startIssuingDay !== NOT_VISA_APPLICTION_DAY) {
           consulate.issue(visa, startIssuingDay);
-          passport.addVisa(visa);
-          SolAlgorithm.updateTripsAvailableDaysBefore(trips, consulate.VisaIssuingDuration);
+          let counter = index;
+          if (!SolAlgorithm.doesVisaIssuingDurationIntersectWithTrip(trips, index, visa)) {
+            startIssuingDay = trips[index].availableDaysBefore[index + counter];
+            consulate.issue(visa, startIssuingDay);
+            passport.addVisa(visa);
+            SolAlgorithm.updateTripsAvailableDaysBefore(trips, consulate.VisaIssuingDuration);
+            counter++;
+          }
         } else {
           visa = new Visa(trips[index].toCountry);
           startIssuingDay = trips[index - 1].getEndDay() + 1;
