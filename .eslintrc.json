@@ -8,6 +8,7 @@
     "no-cond-assign": "off",
     "no-param-reassign": "off",
     "max-len": "off",
-    "object-curly-newline": "off"
+    "object-curly-newline": "off",
+    "no-bitwise":"off"
   } 
 } 
