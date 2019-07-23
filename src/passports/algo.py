@@ -1,24 +1,24 @@
 # https://codeforces.com/problemset/problem/1012/F
 
 class Trip(object):
-    def __init__(self, start, duration, visa_required_duration, to_country):
+    def __init__(self, start, duration, time_to_acquire_visa, to_country):
         self.to_country = to_country
         self.start = start
         self.duration = duration
-        self.visa_required_duration = visa_required_duration
-        self.available_days_before = []
+        self.time_to_acquire_visa = time_to_acquire_visa
+        self.days_before = []
 
     def get_end_day(self):
         return self.duration + self.start
     
-    def reduce_available_days_before(self, removed_days):
-        for day in removed_days:
-            if self.available_days_before.count(day) > 0:
-                self.available_days_before.remove(day)
+    def reduce_days_before(self, days_to_be_removed):
+        for day in days_to_be_removed:
+            if self.days_before.count(day) > 0:
+                self.days_before.remove(day)
 
-    def increase_available_days_before(self, added_days):
-        self.available_days_before.extend(added_days)
-        self.available_days_before.sort(reverse = False)
+    def increase_days_before(self, days_to_add):
+        self.days_before.extend(days_to_add)
+        self.days_before.sort(reverse = False)
 
 class Visa(object):
     def __init__(self, issued_on, required_duration, for_country):
@@ -31,8 +31,8 @@ class Passport(object):
         self.id = id
         self.visas = []
 
-    def has_visa_by(self, country):
-        res = filter(lambda visa: visa.for_country == country, self.visas)
+    def has_visa_from(self, country):
+        res = list(filter(lambda visa: visa.for_country == country, self.visas))
         if len(res) > 0:
             return True
         return False
@@ -43,32 +43,31 @@ class Algo(object):
         self.passport_num = passport_num
         self.trips = []
         self.passports = []
-        for passport_id in range(0, self.passport_num):
+        for passport_id in list(range(0, self.passport_num)):
             self.passports.append(Passport(passport_id))
 
     def get_last_day(self):
         return max(trip.start + trip.duration for trip in self.trips)
 
-    def place_trip(self):
+    def place_trips(self):
         self.trips.sort(key = lambda item: item.start, reverse = False)
-        self.trips[0].available_days_before = range(1, self.trips[0].start)
+        self.trips[0].days_before = list(range(1, self.trips[0].start))
         for i in range(1, len(self.trips)):
-            self.trips[i].available_days_before = range(self.trips[i - 1].get_end_day(), self.trips[i].start)
-            self.trips[i].available_days_before.extend(self.trips[i - 1].available_days_before)
-            self.trips[i].available_days_before.sort(reverse=False)
+            self.trips[i].days_before = list(range(self.trips[i - 1].get_end_day(), self.trips[i].start))
+            self.trips[i].increase_days_before(self.trips[i - 1].days_before)
     
-    def reduce_available_days_before(self, visa):
-        removed_days = range(visa.issued_on, visa.issued_on + visa.required_duration)
+    def reduce_days_before(self, visa):
+        days_to_remove = list(range(visa.issued_on, visa.issued_on + visa.required_duration))
         for trip in self.trips:
-            trip.reduce_available_days_before(removed_days)
+            trip.reduce_days_before(days_to_remove)
     
-    def increase_available_days_before(self, visa):
-        added_day = range(visa.issued_on, visa.issued_on + visa.required_duration)
+    def increase_days_before(self, visa):
+        days_to_add = list(range(visa.issued_on, visa.issued_on + visa.required_duration))
         for trip in self.trips:
-            trip.increase_available_days_before(added_day)
+            trip.increase_days_before(days_to_add)
     
     def can_make_visa_for(self, trip, visa, trips):
-        if (visa.issued_on + visa.required_duration) <= (trip.start - 1):
+        if (visa.issued_on + visa.required_duration) <= trip.start:
             return True
         return False
     
@@ -87,43 +86,43 @@ class Algo(object):
             for visa in passport.visas:
                 if self.is_visa_intersect_with_trips(visa, self.trips, trip) == True:
                     passport.visas.remove(visa)
-                    self.increase_available_days_before(visa)
+                    self.increase_days_before(visa)
 
     def solve_with(self, trips, passport):
-        visa = Visa(1, trips[0].visa_required_duration, trips[0].to_country)
+        visa = Visa(1, trips[0].time_to_acquire_visa, trips[0].to_country)
         passport.visas.append(visa)
-        self.reduce_available_days_before(visa)
+        self.reduce_days_before(visa)
         for visa_country_mask in range(0, 1 << self.trips_num):
             for trip in trips:
-                if visa_country_mask & (1 << trips.index(trip)) > 0 and passport.has_visa_by(trip.to_country) == False:
-                    if len(trip.available_days_before) > 0:
-                        visa = Visa(trip.available_days_before[0], trip.visa_required_duration, trip.to_country)
+                if visa_country_mask & (1 << trips.index(trip)) > 0 and passport.has_visa_from(trip.to_country) == False:
+                    if len(trip.days_before) > 0:
+                        visa = Visa(trip.days_before[0], trip.time_to_acquire_visa, trip.to_country)
                         if self.can_make_visa_for(trip, visa, trips) == True:
                             counter = 0
                             while self.is_visa_intersect_with_trips(visa, trips, trip) == True:
-                                if counter < len(trip.available_days_before):
-                                    visa = Visa(trip.available_days_before[counter], trip.visa_required_duration, trip.to_country)
+                                if counter < len(trip.days_before):
+                                    visa = Visa(trip.days_before[counter], trip.time_to_acquire_visa, trip.to_country)
                                 else:
                                     break
                                 counter = counter + 1
                             if counter == 0:
                                 counter = 1
-                            visa = Visa(trip.available_days_before[counter - 1], trip.visa_required_duration, trip.to_country)
+                            visa = Visa(trip.days_before[counter - 1], trip.time_to_acquire_visa, trip.to_country)
                             if self.can_make_visa_for(trip, visa, trips) == True:
                                 passport.visas.append(visa)
-                                self.reduce_available_days_before(visa)
+                                self.reduce_days_before(visa)
                             else:
                                 if len(passport.visas) > 1:
                                     visa = passport.visas.pop(len(passport.visas) - 1)
-                                    self.increase_available_days_before(visa)
+                                    self.increase_days_before(visa)
 
     def solve(self):
-        self.place_trip()
+        self.place_trips()
         self.solve_with(self.trips, self.passports[0])
         self.clean(self.passports[0])
 
         if len(self.passports) > 1:
-            self.place_trip()
+            self.place_trips()
             trips = list(self.trips)
             self.exclude_trips(trips, self.passports[0])
             self.solve_with(trips, self.passports[1])
@@ -131,7 +130,7 @@ class Algo(object):
     def exclude_trips(self, trips, passport):
         countries = list(map((lambda visa: visa.for_country), passport.visas))
         for country in countries:
-            trip = next((x for x in trips if x.to_country == country), None)
+            trip = next((trip for trip in trips if trip.to_country == country), None)
             if trip != None:
                 trips.remove(trip)
     
